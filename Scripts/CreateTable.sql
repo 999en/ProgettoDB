@@ -1,22 +1,29 @@
---Script da lanciare una singola volta per creare le tabelle
+--Script da lanciare una singola volta per creare le tabelle e inserire una demo dei dati
 CREATE TABLE IF NOT EXISTS utente (
-                        id_utente SERIAL PRIMARY KEY,
-                        username VARCHAR(30) NOT NULL UNIQUE,
+                        username VARCHAR(30) NOT NULL,
                         password VARCHAR(30) NOT NULL,
                         admin BOOLEAN NOT NULL DEFAULT false
+                        CONSTRAINT utente_pk PRIMARY KEY (username)
 );
+
+insert into utente (username, password, admin) values
+                       ('ggsolaire', 'password', false),
+                       ('Cippolean', 'AOO', default),
+                       ('Genny', 'IAmVengeance', true);
 
 CREATE TABLE IF NOT EXISTS luogo (
-                        longitudine FLOAT,
                         latitudine FLOAT,
+                        longitudine FLOAT,
                         nome VARCHAR(50) UNIQUE,  --Poiché non esistono due posti con lo stesso nome
-                        categoria VARCHAR(30),
-                        PRIMARY KEY (longitudine, latitudine)
+                        categoria VARCHAR(30) DEFAULT '-',
+                        CONSTRAINT Luogo_pk PRIMARY KEY (latitudine, longitudine)
 );
 
-INSERT INTO luogo (longitudine, latitudine, nome, categoria) VALUES (12.3375, 45.4341, 'Piazza San Marco', 'Piazza');
-INSERT INTO luogo (longitudine, latitudine, nome, categoria) VALUES (12.4924, 41.8902, 'Colosseo', 'Monumento');
-INSERT INTO luogo (longitudine, latitudine, nome, categoria) VALUES (11.2549, 43.7764, 'Biblioteca Nazionale Centrale di Firenze', 'Biblioteca');
+INSERT INTO luogo (latitudine, longitudine, nome, categoria) VALUES 
+                    (12.3375, 45.4341, 'Piazza San Marco', 'Piazza')
+                    (12.4924, 41.8902, 'Colosseo', 'Monumento')
+                    (11.2549, 43.7764, 'Biblioteca Nazionale Centrale di Firenze', 'Biblioteca')
+;
 
 
 CREATE TABLE IF NOT EXISTS fotografia (
@@ -25,8 +32,23 @@ CREATE TABLE IF NOT EXISTS fotografia (
                         titolo VARCHAR(30) NOT NULL default 'foto.jpg',
                         dati_foto BYTEA,
                         dispositivo VARCHAR(30) NOT NULL DEFAULT 'Sconosciuto',
-                        posizione VARCHAR(50) REFERENCES luogo(nome), --Preferisco usare il nome, unico, anziché due foreign key diverse
-                        condivisa BOOLEAN default false
+                        latitudine FLOAT,
+                        longitudine FLOAT,
+                        condivisa BOOLEAN NOT NULL default false
+                        CONSTRAINT fotografia_pk PRIMARY KEY (id_foto),
+                        CONSTRAINT fotografia_luogo_fk FOREIGN KEY (latitudine, longitudine) REFERENCES luogo(latitudine,longitudine)
+);
+
+CREATE TABLE collezione (
+                        id_collezione SERIAL NOT NULL,
+                        proprietario VARCHAR(30) NOT NULL,
+                        titolo VARCHAR(30) NOT NULL,
+                        DataCollezione TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        NumeroElementi INTEGER NOT NULL DEFAULT 0,
+
+
+
+
 );
 
 CREATE TABLE IF NOT EXISTS soggetto (
@@ -41,7 +63,7 @@ CREATE TABLE IF NOT EXISTS soggetto (
 --Tabella MtM per collegare le fotografie ai soggetti presenti
 CREATE TABLE IF NOT EXISTS tags_foto(
 
-)
+);
 
 CREATE TABLE IF NOT EXISTS video (
     id_video SERIAL PRIMARY KEY,
