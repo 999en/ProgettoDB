@@ -39,16 +39,22 @@ CREATE TABLE IF NOT EXISTS fotografia (
                         CONSTRAINT fotografia_luogo_fk FOREIGN KEY (latitudine, longitudine) REFERENCES luogo(latitudine,longitudine)
 );
 
-CREATE TABLE collezione (
+CREATE TABLE IF NOT EXISTS collezione (                               --la collezione personale la creiamo con una view
                         id_collezione SERIAL NOT NULL,
                         proprietario VARCHAR(30) NOT NULL,
                         titolo VARCHAR(30) NOT NULL,
                         DataCollezione TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                         NumeroElementi INTEGER NOT NULL DEFAULT 0,
+                        CONSTRAINT collezione_pk PRIMARY KEY (id_collezione),
+                        CONSTRAINT proprietario_collezione FOREIGN KEY (proprietario) REFERENCES utente(username) ON DELETE CASCADE
+);
 
-
-
-
+CREATE TABLE IF NOT EXISTS contenuto(
+                        id_collezione INT NOT NULL,
+                        id_foto INT NOT NULL,
+                        CONSTRAINT contenuto_pk PRIMARY KEY (id_collezione)
+                        CONSTRAINT contenuto_collezione_fk FOREIGN KEY (id_collezione) REFERENCES collezione(id_collezione) ON DELETE CASCADE
+                        CONSTRAINT contenuto_fotografia_fk FOREIGN KEY (id_foto) REFERENCES fotografia(id_foto) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS soggetto (
@@ -92,10 +98,6 @@ CREATE TABLE IF NOT EXISTS shared(
     id_creatore INTEGER REFERENCES utente(id_utente) ON DELETE CASCADE,
     nome VARCHAR(30)
 );
-insert into utente values
-                       (default, 'ggsolaire', 'password', true),
-                       (default, 'Cippolean', 'AOO', default),
-                       (default, 'Genny', 'IAmVengeance', false);
 
 INSERT INTO fotografia (username_proprietario, titolo, dati_foto, dispositivo, condivisa, posizione)
 VALUES ('ggsolaire', 'Festa in giardino', '0x454F46...', 'iPhone X', false, 'Null Island');
