@@ -27,8 +27,8 @@ INSERT INTO luogo (latitudine, longitudine, nome, categoria) VALUES
 
 
 CREATE TABLE IF NOT EXISTS fotografia (
-                        id_foto SERIAL PRIMARY KEY,
-                        username_proprietario VARCHAR(30) REFERENCES utente(username) ON DELETE CASCADE,  --CASCADE elimina tutte le foto di quell'utente quando l'utente viene eliminato
+                        id_foto INTEGER,
+                        username_autore VARCHAR(30) REFERENCES utente(username) ON DELETE CASCADE,  --CASCADE elimina tutte le foto di quell'utente quando l'utente viene eliminato
                         titolo VARCHAR(30) NOT NULL default 'foto.jpg',
                         dati_foto BYTEA,
                         dispositivo VARCHAR(30) NOT NULL DEFAULT 'Sconosciuto',
@@ -36,69 +36,10 @@ CREATE TABLE IF NOT EXISTS fotografia (
                         longitudine FLOAT,
                         condivisa BOOLEAN NOT NULL default false
                         CONSTRAINT fotografia_pk PRIMARY KEY (id_foto),
+                        CONSTRAINT fotografia_autore_fk FOREIGN KEY (username_autore) REFERENCES utente(username),
                         CONSTRAINT fotografia_luogo_fk FOREIGN KEY (latitudine, longitudine) REFERENCES luogo(latitudine,longitudine)
 );
-
-CREATE TABLE IF NOT EXISTS collezione (                               --la collezione personale la creiamo con una view
-                        id_collezione SERIAL NOT NULL,
-                        proprietario VARCHAR(30) NOT NULL,
-                        titolo VARCHAR(30) NOT NULL,
-                        DataCollezione TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        NumeroElementi INTEGER NOT NULL DEFAULT 0,
-                        CONSTRAINT collezione_pk PRIMARY KEY (id_collezione),
-                        CONSTRAINT proprietario_collezione FOREIGN KEY (proprietario) REFERENCES utente(username) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS contenuto(
-                        id_collezione INT NOT NULL,
-                        id_foto INT NOT NULL,
-                        CONSTRAINT contenuto_pk PRIMARY KEY (id_collezione)
-                        CONSTRAINT contenuto_collezione_fk FOREIGN KEY (id_collezione) REFERENCES collezione(id_collezione) ON DELETE CASCADE
-                        CONSTRAINT contenuto_fotografia_fk FOREIGN KEY (id_foto) REFERENCES fotografia(id_foto) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS soggetto (
-    id_soggetto SERIAL PRIMARY KEY,
-    nome VARCHAR(30),
-    categoria VARCHAR(30)   --Se = a 'persona' allora si inserisce anche l'id di tale persona
-    id_utente_taggato INTEGER REFERENCES utente(id_utente) DEFAULT NULL
-    --Non necessariamente una persona è presente come utente    
-
-);
-
---Tabella MtM per collegare le fotografie ai soggetti presenti
-CREATE TABLE IF NOT EXISTS tags_foto(
-
-);
-
-CREATE TABLE IF NOT EXISTS video (
-    id_video SERIAL PRIMARY KEY,
-    titolo VARCHAR(30) NOT NULL DEFAULT 'video.mp4',
-    username_proprietario VARCHAR(30) REFERENCES utente(username),
-    numero_frames INTEGER NOT NULL DEFAULT 0
-);
-    SLIDE:
-    id_foto FK fotografia id
-    id_video_appartenenza
-    ordine --Slide inserite sequenzialmente
-    PER OTTENERE IL NUMERO DELL'ORDINE:
-    MAX(ordine) + 1 WHERE id_slideshow = x; dove x è l'id del video modificato
-
-CREATE TABLE IF NOT EXISTS frame(
-    id_frame SERIAL PRIMARY KEY,
-    id_foto INTEGER REFERENCES fotografia(id_foto),
-    id_video_appartenenza INTEGER REFERENCES video(id_video),
-    ordine INTEGER DEFAULT 0 --Inserito un Default per avere un valore da cui partire con la funzione di inserimento
-                             --Così facendo il primo frame avrà ordine 1
-);
-
---Galleria condivisa di foto tra diversi utenti
-CREATE TABLE IF NOT EXISTS shared(
-    id_galleria SERIAL PRIMARY KEY,
-    id_creatore INTEGER REFERENCES utente(id_utente) ON DELETE CASCADE,
-    nome VARCHAR(30)
-);
-
+/*
 INSERT INTO fotografia (username_proprietario, titolo, dati_foto, dispositivo, condivisa, posizione)
 VALUES ('ggsolaire', 'Festa in giardino', '0x454F46...', 'iPhone X', false, 'Null Island');
 
@@ -109,17 +50,82 @@ INSERT INTO fotografia (username_proprietario, titolo, dati_foto, dispositivo, c
 VALUES ('Genny', 'Il mio cane', '0x897EBA...', 'Samsung Galaxy', true);
 
 INSERT INTO fotografia (username_proprietario, titolo, dati_foto, dispositivo, condivisa)
-VALUES ('Cippolean', 'Vacanza estiva', '0xA23C5F...', 'Canon EOS', false);
+VALUES ('Cippolean', 'Vacanza estiva', '0xA23C5F...', 'Canon EOS', false);*/
 
 
+CREATE TABLE IF NOT EXISTS collezione (                               --la collezione personale la creiamo con una view
+                        id_collezione INTEGER NOT NULL,
+                        id_foto 
+                        username VARCHAR(30) NOT NULL,
+                        titolo VARCHAR(30) NOT NULL,
+                        DataCollezione TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        Numero_Elementi INTEGER NOT NULL DEFAULT 0,
+                        CONSTRAINT collezione_pk PRIMARY KEY (id_collezione),
+                        CONSTRAINT collezione_utente_fk FOREIGN KEY (username) REFERENCES utente(username) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS contenuto(
+                        id_collezione INTEGER NOT NULL,
+                        id_foto INTEGER NOT NULL,
+                        CONSTRAINT contenuto_pk PRIMARY KEY (id_collezione, id_foto)
+                        CONSTRAINT contenuto_collezione_fk FOREIGN KEY (id_collezione) REFERENCES collezione(id_collezione) ON DELETE CASCADE
+                        CONSTRAINT contenuto_fotografia_fk FOREIGN KEY (id_foto) REFERENCES fotografia(id_foto) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS tag_utente(
+                        username VARCHAR NOT NULL,
+                        id_foto INTEGER NOT NULL,
+                        CONSTRAINT tag_utente_pk PRIMARY KEY (username, id_foto),
+                        CONSTRAINT tagutente_utente_fk FOREIGN KEY(username) REFERENCES utente(username) ON DELETE CASCADE,
+                        CONSTRAINT tagutente_fotografia_fk FOREIGN KEY(id_foto) REFERENCES fotografia(id_foto) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS video (
+    id_video SERIAL NOT NULL,
+    autore VARCHAR(30) NOT NULL,
+    titolo VARCHAR(30) NOT NULL DEFAULT 'video.mp4',
+    numero_frames INTEGER NOT NULL DEFAULT 0,
+    durata INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT video_pk PRIMARY KEY (id_video),
+    CONSTRAINT video_autore_fk FOREIGN KEY (autore) REFERENCES utente(username) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS frame(
+    id_frame SERIAL NOT NULL,
+    id_foto INTEGER,
+    durata INTEGER NOT NULL DEFAULT 0,
+    ordine INTEGER SERIAL NOT NULL DEFAULT 0 --Inserito un Default per avere un valore da cui partire con la funzione di inserimento
+                                             --Così facendo il primo frame avrà ordine 1
+    CONSTRAINT frame_pk PRIMARY KEY (id_frame),
+    CONSTRAINT frame_fotografia_fk FOREIGN KEY (id_foto) REFERENCES fotografia(id_foto) ON DELETE SET NULL
+                                                                                    --"ON DELETE SET NULL" indica che quando una riga
+                                                                                    --nella tabella padre viene eliminata, il valore della colonna
+                                                                                    --corrispondente nella tabella figlia deve essere impostato a NULL. 
+);
+
+CREATE TABLE IF NOT EXISTS soggetto (
+    nome VARCHAR(30) NOT NULL,
+    categoria VARCHAR(30) NOT NULL DEFAULT '-',
+    CONSTRAINT soggetto_pk PRIMARY KEY (nome)
+);
+
+CREATE TABLE IF NOT EXISTS tag_soggetto(
+    nome_soggetto VARCHAR(30) NOT NULL,
+    id_foto INTEGER NOT NULL,
+    CONSTRAINT tag_soggetto_pk (nome_soggetto, id_foto),
+    CONSTRAINT tagsottetto_soggetto_fk (nome_soggetto) REFERENCES soggetto(nome),
+    CONSTRAINT tagsoggetto_fotografia_fk (id_foto) REFERENCES fotografia(id_foto)
+);
+/*
 CREATE PROCEDURE insert_frame_in_video(@id_video INTEGER, @id_foto INTEGER)
     LANGUAGE SQL
     AS $$
 
         INSERT INTO frame (id_video, id_foto, ordine)
         VALUES (@id_video, @id_foto, (SELECT MAX(ordine) from frame WHERE id_video = @id_video));
-    $$;
-/*r
+    $$;*/
+    
+/*
 --select * from fotografia JOIN luogo ON fotografia.posizione = luogo.nome WHERE luogo.nome = 'Null Island';
 --Dopo il nome del campo posso inserire anche un alias ed usare quello al posto del nome
 --Esempio fotografia t1 JOIN luogo t2 ON t1.posizione = t2.nome ...
