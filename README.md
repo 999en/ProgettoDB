@@ -1,4 +1,4 @@
-#In questa repositery sono presenti i seguenti file:
+In questa repositery sono presenti i seguenti file:
 
 **CreateDB.sql**: file sql contenente tabelle e funzioni del database
 
