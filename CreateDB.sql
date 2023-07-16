@@ -1,4 +1,4 @@
---Script da lanciare una singola volta per creare le tabelle e inserire una demo dei dati
+--Script da lanciare una singola volta per creare le tabelle e le varie funzioni
 CREATE TABLE IF NOT EXISTS utente (
 	username VARCHAR(30) NOT NULL,
 	password VARCHAR(30) NOT NULL,
