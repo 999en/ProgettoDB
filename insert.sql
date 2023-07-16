@@ -77,7 +77,7 @@ INSERT INTO contenuto (id_collezione, id_foto) VALUES
   (3, 12),
   (4, 13),
   (4, 14),
-  (4, 17)
+  (4, 17),
   (4, 20),
   (4, 21),
   (4, 22);
