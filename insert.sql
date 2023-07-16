@@ -111,21 +111,13 @@ INSERT INTO frame (id_video, id_foto, durata, ordine) VALUES
   (2, 2, 6, 1),
   (2, 3, 8, 2),
   (3, 1, 6, 1),
-  (3, 3, 8, 2);
-
-/*  
---CASO 1: foto privata dell'autore del video
-INSERT INTO frame (id_video, id_foto, durata, ordine) VALUES
-  (4, 14, 6, 1),
-  (4, 17, 8, 2),
-  (4, 18, 10, 3),
-  (4, 23, 8, 2);
-  
-  --CASO 2: foto private ma non del possessore del video
-INSERT INTO frame (id_video, id_foto, durata, ordine) VALUES
-  (4, 16, 6, 1),
-  (4, 19, 8, 2);
-*/
+  (3, 3, 8, 2),
+  (4, 14, 4, 1),
+	(4, 17, 5, 2),
+	(4, 19, 2, 3),
+	(4, 20, 3, 4),
+	(4, 21, 5, 5),
+	(4, 22, 7, 6);
 
 --Inserimento dei soggetti
 INSERT INTO soggetto (nome, categoria) VALUES
