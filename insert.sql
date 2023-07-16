@@ -76,11 +76,11 @@ INSERT INTO contenuto (id_collezione, id_foto) VALUES
   (3, 11),
   (3, 12),
   (4, 13),
-  (4, 18),
+  (4, 14),
+  (4, 17)
   (4, 20),
   (4, 21),
-  (4, 22),
-  (4, 23);
+  (4, 22);
   
   /* insert di prova per testare i trigger
   CASO 1: foto privata ma l'autore è anche il possessore della collezione
