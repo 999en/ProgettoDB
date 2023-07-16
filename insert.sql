@@ -113,11 +113,11 @@ INSERT INTO frame (id_video, id_foto, durata, ordine) VALUES
   (3, 1, 6, 1),
   (3, 3, 8, 2),
   (4, 14, 4, 1),
-	(4, 17, 5, 2),
-	(4, 19, 2, 3),
-	(4, 20, 3, 4),
-	(4, 21, 5, 5),
-	(4, 22, 7, 6);
+  (4, 17, 5, 2),
+  (4, 19, 2, 3),
+  (4, 20, 3, 4),
+  (4, 21, 5, 5),
+  (4, 22, 7, 6);
 
 --Inserimento dei soggetti
 INSERT INTO soggetto (nome, categoria) VALUES
